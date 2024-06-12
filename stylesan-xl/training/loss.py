@@ -60,7 +60,7 @@ class ProjectedGANLoss(Loss):
         cls = timm.create_model(cls_model, pretrained=True).eval()
 
         assert "deit" in cls_model
-        cls.patch_embed.proj = fix_channels(cls.patch_embed.proj)
+        cls.patch_embed.proj = fix_channels(cls.patch_embed.proj, in_channels=kwargs['img_channels'])
 
         self.classifier = nn.Sequential(Interpolate(224), cls).to(device)
         normstats = get_backbone_normstats(cls_model)

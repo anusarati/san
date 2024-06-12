@@ -236,7 +236,7 @@ def training_loop(
     # Setup training phases.
     if rank == 0:
         print('Setting up training phases...')
-    loss = dnnlib.util.construct_class_by_name(device=device, G=G, G_ema=G_ema, D=D, augment_pipe=augment_pipe, **loss_kwargs) # subclass of training.loss.Loss
+    loss = dnnlib.util.construct_class_by_name(device=device, G=G, G_ema=G_ema, D=D, augment_pipe=augment_pipe, **common_kwargs, **loss_kwargs) # subclass of training.loss.Loss
     phases = []
     iter_dict = {'G': 1, 'D': 1}  # change here if you want to do several G/D iterations at once
 
