@@ -52,11 +52,11 @@ def _make_scratch_csm(scratch, in_channels, cout, expand):
 
     return scratch
 
-def _make_projector(im_res, backbone, cout, proj_type, expand=False):
+def _make_projector(im_res, backbone, cout, proj_type, expand=False, in_channels=3):
     assert proj_type in [0, 1, 2], "Invalid projection type"
 
     ### Build pretrained feature network
-    pretrained = _make_pretrained(backbone)
+    pretrained = _make_pretrained(backbone, in_channels=in_channels)
 
     # Following Projected GAN
     im_res = 256
@@ -93,6 +93,7 @@ class F_RandomProj(nn.Module):
         cout=64,
         expand=True,
         proj_type=2,  # 0 = no projection, 1 = cross channel mixing, 2 = cross scale mixing
+        in_channels=3,
         **kwargs,
     ):
         super().__init__()
@@ -104,7 +105,7 @@ class F_RandomProj(nn.Module):
 
         # build pretrained feature network and random decoder (scratch)
         self.pretrained, self.scratch = _make_projector(im_res=im_res, backbone=self.backbone, cout=self.cout,
-                                                        proj_type=self.proj_type, expand=self.expand)
+                                                        proj_type=self.proj_type, expand=self.expand, in_channels=in_channels)
         self.CHANNELS = self.pretrained.CHANNELS
         self.RESOLUTIONS = self.pretrained.RESOLUTIONS
 

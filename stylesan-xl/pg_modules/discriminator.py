@@ -179,12 +179,14 @@ class ProjectedDiscriminator(torch.nn.Module):
         self.diffaug = diffaug
         self.interp224 = interp224
 
+        img_channels = kwargs['img_channels']
+
         # get backbones and multi-scale discs
         feature_networks, discriminators = [], []
 
         for i, bb_name in enumerate(backbones):
 
-            feat = F_RandomProj(bb_name, **backbone_kwargs)
+            feat = F_RandomProj(bb_name, in_channels=img_channels, **backbone_kwargs)
             disc = MultiScaleD(
                 channels=feat.CHANNELS,
                 resolutions=feat.RESOLUTIONS,

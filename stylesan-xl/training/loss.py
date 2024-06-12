@@ -25,6 +25,7 @@ import legacy
 from pg_modules.blocks import Interpolate
 import timm
 from pg_modules.projector import get_backbone_normstats
+from feature_networks.pretrained_builder import fix_channels
 
 #----------------------------------------------------------------------------
 
@@ -57,6 +58,10 @@ class ProjectedGANLoss(Loss):
 
         # classifier guidance
         cls = timm.create_model(cls_model, pretrained=True).eval()
+
+        assert "deit" in cls_model
+        cls.patch_embed.proj = fix_channels(cls.patch_embed.proj)
+
         self.classifier = nn.Sequential(Interpolate(224), cls).to(device)
         normstats = get_backbone_normstats(cls_model)
         self.norm = Normalize(normstats['mean'], normstats['std'])

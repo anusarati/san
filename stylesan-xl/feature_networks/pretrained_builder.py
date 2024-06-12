@@ -168,10 +168,11 @@ def _make_vit(model, name):
         start_index=2 if 'deit' in name else 1,
     )
 
-def calc_dims(pretrained, is_vit=False):
+
+def calc_dims(pretrained, is_vit=False, in_channels=3):
     dims = []
     inp_res = 256
-    tmp = torch.zeros(1, 3, inp_res, inp_res)
+    tmp = torch.zeros(1, in_channels, inp_res, inp_res)
 
     if not is_vit:
         tmp = pretrained.layer0(tmp)
@@ -192,7 +193,20 @@ def calc_dims(pretrained, is_vit=False):
     res_mult = dims[:, 1] / inp_res
     return channels, res_mult
 
-def _make_pretrained(backbone, verbose=False):
+def fix_channels(conv, in_channels):
+    """Creates new convolutional layer with correct number of input channels"""
+    new = type(conv)(
+        in_channels=in_channels,
+        out_channels=conv.out_channels,
+        kernel_size=conv.kernel_size,
+        bias=conv.bias != None,
+    )
+    least_channels = min(conv.in_channels, new.in_channels)
+    new.weight.data[:, :least_channels] = conv.weight.data[:, :least_channels]
+    return new
+
+
+def _make_pretrained(backbone, verbose=False, in_channels=3):
     assert backbone in ALL_MODELS
 
     if backbone == 'vgg11_bn':
@@ -393,10 +407,18 @@ def _make_pretrained(backbone, verbose=False):
 
     elif backbone in EFFNETS:
         model = timm.create_model(backbone, pretrained=True)
+
+        # fix number of input channels
+        model.conv_stem = fix_channels(model.conv_stem, in_channels)
+
         pretrained = _make_efficientnet(model)
 
     elif backbone in VITS:
         model = timm.create_model(backbone, pretrained=True)
+
+        # fix number of input channels
+        model.patch_embed.proj = fix_channels(model.patch_embed.proj, in_channels)
+
         pretrained = _make_vit(model, backbone)
 
     elif backbone == 'resnet50_clip':
@@ -406,7 +428,9 @@ def _make_pretrained(backbone, verbose=False):
     else:
         raise NotImplementedError('Wrong model name?')
 
-    pretrained.CHANNELS, pretrained.RES_MULT = calc_dims(pretrained, is_vit=backbone in VITS)
+    pretrained.CHANNELS, pretrained.RES_MULT = calc_dims(
+        pretrained, is_vit=backbone in VITS, in_channels=in_channels
+    )
 
     if verbose:
         print(f"Succesfully loaded:    {backbone}")
