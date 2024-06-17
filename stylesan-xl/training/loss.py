@@ -60,10 +60,11 @@ class ProjectedGANLoss(Loss):
         cls = timm.create_model(cls_model, pretrained=True).eval()
 
         assert "deit" in cls_model
-        cls.patch_embed.proj = fix_channels(cls.patch_embed.proj, in_channels=kwargs['img_channels'])
+        channels = kwargs['img_channels']
+        cls.patch_embed.proj = fix_channels(cls.patch_embed.proj, in_channels=channels)
 
         self.classifier = nn.Sequential(Interpolate(224), cls).to(device)
-        normstats = get_backbone_normstats(cls_model)
+        normstats = get_backbone_normstats(cls_model, channels=channels)
         self.norm = Normalize(normstats['mean'], normstats['std'])
         self.cls_weight = cls_weight
         self.cls_guidance_loss = torch.nn.CrossEntropyLoss()
