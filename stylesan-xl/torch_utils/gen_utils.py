@@ -29,7 +29,7 @@ def create_image_grid(images: np.ndarray, grid_size: Optional[Tuple[int, int]] =
     """
     # Sanity check
     assert images.ndim == 3 or images.ndim == 4, f'Images has {images.ndim} dimensions (shape: {images.shape})!'
-    num, img_h, img_wc = images.shape[:3]
+    num, img_h, img_w = images.shape[:3]
     # If user specifies the grid shape, use it
     if grid_size is not None:
         grid_w, grid_h = tuple(grid_size)
