@@ -60,8 +60,8 @@ def generate_samplesheet(
     mode = 'RGB'
     for w in tqdm(ws.split(batch_gpu)):
         img = gen_utils.w_to_img(G, w, to_np=True)
-        if img.shape[0] == 1:
-            img = img[0, :, :]
+        if img.shape[-1] == 1:
+            img = img[:, :, :, 0]
             mode = 'L'
         images.append(img)
 
