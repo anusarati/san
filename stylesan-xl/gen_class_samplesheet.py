@@ -24,6 +24,7 @@ from gen_images import parse_range
 @click.option('--batch-gpu', help='Samples per pass, adapt to fit on GPU', type=int, default=32)
 @click.option('--outdir', help='Where to save the output images', type=str, required=True, metavar='DIR')
 @click.option('--desc', help='String to include in result dir name', metavar='STR', type=str)
+@click.option('--mode', help="Name of Pillow image mode ('L', 'RGB')", metavar='STR', type=str, default = 'RGB')
 def generate_samplesheet(
     network_pkl: str,
     truncation_psi: float,
@@ -35,6 +36,7 @@ def generate_samplesheet(
     grid_width: int,
     outdir: str,
     desc: str,
+    mode: str,
 ):
     print('Loading networks from "%s"...' % network_pkl)
     device = torch.device('cuda')
@@ -64,7 +66,7 @@ def generate_samplesheet(
     # adjust grid widht to prohibit folding between same class then save to disk
     grid_width = grid_width - grid_width % samples_per_class
     images = gen_utils.create_image_grid(np.concatenate(images), grid_size=(grid_width, None))
-    PIL.Image.fromarray(images, 'RGB').save(run_dir / 'sheet.png')
+    PIL.Image.fromarray(images, mode).save(run_dir / 'sheet.png')
 
 if __name__ == "__main__":
     generate_samplesheet()
