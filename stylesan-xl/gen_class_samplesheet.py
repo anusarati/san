@@ -61,7 +61,7 @@ def generate_samplesheet(
     for w in tqdm(ws.split(batch_gpu)):
         img = gen_utils.w_to_img(G, w, to_np=True)
         if img.shape[-1] == 1:
-            img = img[:, :, :, 0]
+            img = img.squeeze(-1)
             mode = 'L'
         images.append(img)
 
