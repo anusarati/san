@@ -46,8 +46,11 @@ def create_image_grid(images: np.ndarray, grid_size: Optional[Tuple[int, int]] =
 
     # Sanity check
     assert grid_w * grid_h >= num, 'Number of rows and columns must be greater than the number of images!'
+    grid_shape = [grid_h * img_h, grid_w * img_h]
+    if len(images.shape) > 3:
+        grid_shape.append(images.shape[-1])
     # Get the grid
-    grid = np.zeros([grid_h * img_h, grid_w * img_h] + list(images.shape[-1:]), dtype=images.dtype)
+    grid = np.zeros( + list(images.shape[-1:]), dtype=images.dtype)
     # Paste each image in the grid
     for idx in range(num):
         x = (idx % grid_w) * img_w

@@ -115,7 +115,10 @@ def generate_images(
         w = gen_utils.get_w_from_seed(G, batch_sz, device, truncation_psi, seed=seed,
                                       centroids_path=centroids_path, class_idx=class_idx)
         img = gen_utils.w_to_img(G, w, to_np=True)
-        PIL.Image.fromarray(gen_utils.create_image_grid(img), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
+        mode = 'RGB'
+        if img.shape[-1] == 1:
+            mode = 'L'
+        PIL.Image.fromarray(gen_utils.create_image_grid(img), mode).save(f'{outdir}/seed{seed:04d}.png')
 
 
 #----------------------------------------------------------------------------
