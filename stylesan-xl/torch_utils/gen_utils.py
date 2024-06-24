@@ -29,7 +29,7 @@ def create_image_grid(images: np.ndarray, grid_size: Optional[Tuple[int, int]] =
     """
     # Sanity check
     assert images.ndim == 3 or images.ndim == 4, f'Images has {images.ndim} dimensions (shape: {images.shape})!'
-    num, img_h, img_w = images.shape[:3]
+    num, img_h, img_w, c = images.shape
     # If user specifies the grid shape, use it
     if grid_size is not None:
         grid_w, grid_h = tuple(grid_size)
@@ -47,8 +47,8 @@ def create_image_grid(images: np.ndarray, grid_size: Optional[Tuple[int, int]] =
     # Sanity check
     assert grid_w * grid_h >= num, 'Number of rows and columns must be greater than the number of images!'
     grid_shape = [grid_h * img_h, grid_w * img_h]
-    if len(images.shape) > 3:
-        grid_shape.append(images.shape[-1])
+    if c > 1:
+        grid_shape.append(c)
     # Get the grid
     grid = np.zeros(grid_shape, dtype=images.dtype)
     # Paste each image in the grid
