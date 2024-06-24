@@ -65,7 +65,7 @@ def generate_samplesheet(
             mode = 'L'
         images.append(img)
 
-    # adjust grid widht to prohibit folding between same class then save to disk
+    # adjust grid width to prohibit folding between same class then save to disk
     grid_width = grid_width - grid_width % samples_per_class
     images = gen_utils.create_image_grid(np.concatenate(images), grid_size=(grid_width, None))
     PIL.Image.fromarray(images, mode).save(run_dir / 'sheet.png')

@@ -118,6 +118,7 @@ def generate_images(
         mode = 'RGB'
         if img.shape[-1] == 1:
             mode = 'L'
+            img.squeeze(axis=-1)
         PIL.Image.fromarray(gen_utils.create_image_grid(img), mode).save(f'{outdir}/seed{seed:04d}.png')
 
 
