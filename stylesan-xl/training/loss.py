@@ -38,7 +38,7 @@ class Loss:
 class ProjectedGANLoss(Loss):
     def __init__(self, device, G, D, G_ema, blur_init_sigma=0, blur_fade_kimg=0,
                  train_head_only=False, style_mixing_prob=0.0, pl_weight=0.0,
-                 cls_model='efficientnet_b1', cls_weight=0.0, **kwargs):
+                 cls_model='efficientnet_b1', cls_weight=0.0, backbone_path=None, **kwargs):
         super().__init__()
         self.device = device
         self.G = G
@@ -57,11 +57,13 @@ class ProjectedGANLoss(Loss):
         self.pl_mean = torch.zeros([], device=device)
 
         # classifier guidance
-        cls = timm.create_model(cls_model, pretrained=True).eval()
+        if backbone_path:
+            cls = torch.load(backbone_path)
+        else:
+            cls = timm.create_model(cls_model, pretrained=True).eval()
 
-        assert "deit" in cls_model
-        channels = kwargs['img_channels']
-        cls.patch_embed.proj = fix_channels(cls.patch_embed.proj, in_channels=channels)
+            channels = kwargs['img_channels']
+            cls.patch_embed.proj = fix_channels(cls.patch_embed.proj, in_channels=channels)
 
         self.classifier = nn.Sequential(Interpolate(224), cls).to(device)
         normstats = get_backbone_normstats(cls_model, channels=channels)

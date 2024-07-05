@@ -277,7 +277,7 @@ def main(**kwargs):
     # Discriminator
     c.D_kwargs = dnnlib.EasyDict(
         class_name='pg_modules.discriminator.ProjectedDiscriminator',
-        backbones=['deit_base_distilled_patch16_224', 'tf_efficientnet_lite0'],
+        backbones=['custom'] if opts.backbone_path else ['deit_base_distilled_patch16_224', 'tf_efficientnet_lite0'],
         diffaug=True,
         interp224=(c.training_set_kwargs.resolution < 224),
         backbone_kwargs=dnnlib.EasyDict(),
@@ -296,7 +296,7 @@ def main(**kwargs):
     c.loss_kwargs.pl_no_weight_grad = True
     c.loss_kwargs.style_mixing_prob = 0.0
     c.loss_kwargs.cls_weight = 0.0  # use classifier guidance only for superresolution training (i.e., with pretrained stem)
-    c.loss_kwargs.cls_model = 'deit_small_distilled_patch16_224'
+    c.loss_kwargs.cls_model = 'custom' if opts.backbone_path else 'deit_small_distilled_patch16_224'
     c.loss_kwargs.train_head_only = False
     c.loss_kwargs.backbone_path = opts.backbone_path
 
