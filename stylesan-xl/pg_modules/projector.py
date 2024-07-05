@@ -14,13 +14,7 @@ from pg_modules.blocks import FeatureFusionBlock
 
 def get_backbone_normstats(backbone, channels):
     def _():
-        if backbone in NORMALIZED_INCEPTION:
-            return {
-                "mean": [0.5, 0.5, 0.5],
-                "std": [0.5, 0.5, 0.5],
-            }
-
-        elif backbone in NORMALIZED_IMAGENET:
+        if backbone in NORMALIZED_IMAGENET:
             return {
                 "mean": [0.485, 0.456, 0.406],
                 "std": [0.229, 0.224, 0.225],
@@ -31,9 +25,18 @@ def get_backbone_normstats(backbone, channels):
                 "mean": [0.48145466, 0.4578275, 0.40821073],
                 "std": [0.26862954, 0.26130258, 0.27577711],
             }
-
+        elif 'custom' in backbone:
+            # no norm lol
+            return {
+                'mean': [0 for _ in channels],
+                'std': [1 for _ in channels],
+            }
         else:
-            raise NotImplementedError
+            #if backbone in NORMALIZED_INCEPTION:
+            return {
+                "mean": [0.5, 0.5, 0.5],
+                "std": [0.5, 0.5, 0.5],
+            }
 
     original = _()
     mean = original["mean"]
@@ -43,8 +46,8 @@ def get_backbone_normstats(backbone, channels):
         from statistics import fmean
         return {"mean": [fmean(mean)], "std": [fmean(std)]}
 
-    mean = mean[:channels] + [0.5 for _ in range(channels - 3)]
-    std = std[:channels] + [0.25 for _ in range(channels - 3)]
+    mean = mean[:channels]
+    std = std[:channels]
     return {"mean": mean, "std": std}
 
 
@@ -88,11 +91,11 @@ def _make_scratch_csm(scratch, in_channels, cout, expand):
     return scratch
 
 
-def _make_projector(im_res, backbone, cout, proj_type, expand=False, in_channels=3):
+def _make_projector(im_res, backbone, cout, proj_type, expand=False, in_channels=3, backbone_path=None):
     assert proj_type in [0, 1, 2], "Invalid projection type"
 
     ### Build pretrained feature network
-    pretrained = _make_pretrained(backbone, in_channels=in_channels)
+    pretrained = _make_pretrained(backbone, in_channels=in_channels, backbone_path=backbone_path)
 
     # Following Projected GAN
     im_res = 256
@@ -138,6 +141,7 @@ class F_RandomProj(nn.Module):
         expand=True,
         proj_type=2,  # 0 = no projection, 1 = cross channel mixing, 2 = cross scale mixing
         in_channels=3,
+        backbone_path=None,
         **kwargs,
     ):
         super().__init__()
@@ -155,6 +159,7 @@ class F_RandomProj(nn.Module):
             proj_type=self.proj_type,
             expand=self.expand,
             in_channels=in_channels,
+            backbone_path=backbone_path
         )
         self.CHANNELS = self.pretrained.CHANNELS
         self.RESOLUTIONS = self.pretrained.RESOLUTIONS

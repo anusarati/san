@@ -237,6 +237,7 @@ def training_loop(
     if rank == 0:
         print('Setting up training phases...')
     loss = dnnlib.util.construct_class_by_name(device=device, G=G, G_ema=G_ema, D=D, augment_pipe=augment_pipe, **common_kwargs, **loss_kwargs) # subclass of training.loss.Loss
+    backbone_path = loss_kwargs.backbone_path
     phases = []
     iter_dict = {'G': 1, 'D': 1}  # change here if you want to do several G/D iterations at once
 
@@ -490,7 +491,8 @@ def training_loop(
                 print('Evaluating metrics...')
             for metric in metrics:
                 result_dict = metric_main.calc_metric(metric=metric, G=snapshot_data['G_ema'],
-                                                      dataset_kwargs=training_set_kwargs, num_gpus=num_gpus, rank=rank, device=device)
+                                                      dataset_kwargs=training_set_kwargs, num_gpus=num_gpus, rank=rank, device=device,
+                                                      backbone_path=backbone_path)
                 if rank == 0:
                     metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=snapshot_pkl)
                 stats_metrics.update(result_dict.results)

@@ -174,6 +174,8 @@ def parse_comma_separated_list(s):
 @click.option('--cls_weight',   help='class guidance weight', type=float, default=0.0, show_default=True)
 @click.option('--up_factor',    help='Up sampling factor of superres head', type=click.IntRange(min=2), default=2, show_default=True)
 
+@click.option('--backbone_path',    help='Path to custom backbone checkpoint', type=str, default=None, show_default=True)
+
 def main(**kwargs):
     # Initialize config.
     opts = dnnlib.EasyDict(kwargs)  # Command line arguments
@@ -296,6 +298,7 @@ def main(**kwargs):
     c.loss_kwargs.cls_weight = 0.0  # use classifier guidance only for superresolution training (i.e., with pretrained stem)
     c.loss_kwargs.cls_model = 'deit_small_distilled_patch16_224'
     c.loss_kwargs.train_head_only = False
+    c.loss_kwargs.backbone_path = opts.backbone_path
 
     if opts.superres:
         assert opts.path_stem is not None, "When training superres head, provide path to stem"

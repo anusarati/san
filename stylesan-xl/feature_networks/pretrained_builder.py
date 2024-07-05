@@ -184,6 +184,15 @@ def _make_vit(model, name):
     )
 
 
+def _make_convnextv2(model):
+    pretrained = nn.Module()
+    pretrained.layer0 = nn.Sequential(model.embeddings, model.encoder.stages[0])
+    pretrained.layer1 = model.encoder.stages[1]
+    pretrained.layer2 = model.encoder.stages[2]
+    pretrained.layer3 = model.encoder.stages[3]
+    return pretrained
+
+
 def calc_dims(pretrained, is_vit=False, in_channels=3):
     dims = []
     inp_res = 256
@@ -220,10 +229,12 @@ def fix_channels(conv, in_channels):
     )
     least_channels = min(conv.in_channels, new.in_channels)
     new.weight.data[:, :least_channels] = conv.weight.data[:, :least_channels]
+    if conv.bias != None:
+        new.bias.data = conv.bias.data
     return new
 
 
-def _make_pretrained(backbone, verbose=False, in_channels=3):
+def _make_pretrained(backbone, verbose=False, in_channels=3, backbone_path=None):
     assert backbone in ALL_MODELS
 
     if backbone == "vgg11_bn":
@@ -441,6 +452,10 @@ def _make_pretrained(backbone, verbose=False, in_channels=3):
     elif backbone == "resnet50_clip":
         model = clip.load("RN50", device="cpu", jit=False)[0].visual
         pretrained = _make_resnet_clip(model)
+
+    elif "custom" in backbone:
+        model = torch.load(backbone_path)
+        pretrained = _make_convnextv2(model)
 
     else:
         raise NotImplementedError("Wrong model name?")
