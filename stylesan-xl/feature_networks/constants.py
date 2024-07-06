@@ -107,7 +107,7 @@ CLIP = [
     'resnet50_clip'
 ]
 
-ALL_MODELS = TORCHVISION + REGNETS + EFFNETS + VITS + CLIP
+ALL_MODELS = TORCHVISION + REGNETS + EFFNETS + VITS + CLIP + ['custom']
 
 # Group according to input normalization
 
