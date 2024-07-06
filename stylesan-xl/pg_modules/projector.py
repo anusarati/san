@@ -28,8 +28,8 @@ def get_backbone_normstats(backbone, channels):
         elif 'custom' in backbone:
             # no norm lol
             return {
-                'mean': [0 for _ in channels],
-                'std': [1 for _ in channels],
+                'mean': [0 for _ in range(channels)],
+                'std': [1 for _ in range(channels)],
             }
         else:
             #if backbone in NORMALIZED_INCEPTION:
