@@ -129,7 +129,6 @@ class FeatureStats:
             self.raw_cov += x64.T @ x64
 
     def append_torch(self, x, num_gpus=1, rank=0):
-        print(x.shape)
         assert isinstance(x, torch.Tensor) and x.ndim == 2
         assert 0 <= rank < num_gpus
         if num_gpus > 1:
@@ -329,7 +328,7 @@ def compute_feature_stats_for_generator(opts, detector_url, detector_kwargs, rel
             detector = F_RandomProj(opts.feature_network, proj_type=1).eval().to(opts.device)
             detector.proj_type = 0
     else:
-        detector = get_feature_detector(url=detector_url, device=opts.device, num_gpus=opts.num_gpus, rank=opts.rank, verbose=progress.verbose)
+        detector = get_feature_detector(url=detector_url, device=opts.device, num_gpus=opts.num_gpus, rank=opts.rank, verbose=progress.verbose, custom=opts.backbone_path)
 
     # Main loop.
     if sfid:
