@@ -129,6 +129,7 @@ class FeatureStats:
             self.raw_cov += x64.T @ x64
 
     def append_torch(self, x, num_gpus=1, rank=0):
+        print(x.shape)
         assert isinstance(x, torch.Tensor) and x.ndim == 2
         assert 0 <= rank < num_gpus
         if num_gpus > 1:
