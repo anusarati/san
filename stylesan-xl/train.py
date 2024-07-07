@@ -280,7 +280,7 @@ def main(**kwargs):
         backbones=['custom'] if opts.backbone_path else ['deit_base_distilled_patch16_224', 'tf_efficientnet_lite0'],
         diffaug=True,
         interp224=(c.training_set_kwargs.resolution < 224),
-        backbone_kwargs=dnnlib.EasyDict(),
+        backbone_kwargs=dnnlib.EasyDict(backbone_path = opts.backbone_path),
     )
     c.D_kwargs.backbone_kwargs.cout = 64
     c.D_kwargs.backbone_kwargs.expand = True
