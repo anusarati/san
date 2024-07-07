@@ -57,11 +57,11 @@ class ProjectedGANLoss(Loss):
         self.pl_mean = torch.zeros([], device=device)
 
         # classifier guidance
+        channels = kwargs['img_channels']
         if backbone_path:
             cls = torch.load(backbone_path)
         else:
             cls = timm.create_model(cls_model, pretrained=True).eval()
-            channels = kwargs['img_channels']
             cls.patch_embed.proj = fix_channels(cls.patch_embed.proj, in_channels=channels)
 
         self.classifier = nn.Sequential(Interpolate(224), cls).to(device)
