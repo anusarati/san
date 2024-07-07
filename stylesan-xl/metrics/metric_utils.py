@@ -53,7 +53,7 @@ _feature_detector_cache = dict()
 def get_feature_detector_name(url):
     return os.path.splitext(url.split('/')[-1])[0]
 
-def get_feature_detector(url, device=torch.device('cpu'), num_gpus=1, rank=0, verbose=False):
+def get_feature_detector(url, device=torch.device('cpu'), num_gpus=1, rank=0, verbose=False, custom = False):
     assert 0 <= rank < num_gpus
     key = (url, device)
     if key not in _feature_detector_cache:
@@ -61,7 +61,10 @@ def get_feature_detector(url, device=torch.device('cpu'), num_gpus=1, rank=0, ve
         if not is_leader and num_gpus > 1:
             torch.distributed.barrier() # leader goes first
         with dnnlib.util.open_url(url, verbose=(verbose and is_leader)) as f:
-            _feature_detector_cache[key] = torch.load(f, map_location=device)
+            model = torch.load(f, map_location=device)
+            if custom:
+                model = lambda x, *a : model(x, *a).pooler_output
+            _feature_detector_cache[key] = model
             # _feature_detector_cache[key] = dill.load(f).to(device)
             # _feature_detector_cache[key] = pickle.load(f).to(device)
         if is_leader and num_gpus > 1:
@@ -264,7 +267,7 @@ def compute_feature_stats_for_dataset(opts, detector_url, detector_kwargs, rel_l
             detector = F_RandomProj(opts.feature_network, proj_type=1).eval().to(opts.device)
             detector.proj_type = 0
     else:
-        detector = get_feature_detector(url=detector_url, device=opts.device, num_gpus=opts.num_gpus, rank=opts.rank, verbose=progress.verbose)
+        detector = get_feature_detector(url=detector_url, device=opts.device, num_gpus=opts.num_gpus, rank=opts.rank, verbose=progress.verbose, custom=opts.backbone_path)
 
     # Main loop.
     if sfid:
