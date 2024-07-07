@@ -63,8 +63,9 @@ def get_feature_detector(url, device=torch.device('cpu'), num_gpus=1, rank=0, ve
         with dnnlib.util.open_url(url, verbose=(verbose and is_leader)) as f:
             model = torch.load(f, map_location=device)
             if custom:
-                model = lambda x, *a : model(x, *a).pooler_output
-            _feature_detector_cache[key] = model
+                _feature_detector_cache[key] = lambda *a : model(*a).pooler_output
+            else:
+                _feature_detector_cache[key] = model
             # _feature_detector_cache[key] = dill.load(f).to(device)
             # _feature_detector_cache[key] = pickle.load(f).to(device)
         if is_leader and num_gpus > 1:
