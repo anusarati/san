@@ -282,6 +282,8 @@ def compute_feature_stats_for_dataset(opts, detector_url, detector_kwargs, rel_l
 
         with torch.no_grad():
             if opts.feature_network is None:
+                if images.dtype == torch.uint8:
+                    images = images.to(torch.float32) / 255
                 features = detector(images.to(opts.device), **detector_kwargs)
                 if sfid:
                     features = activation['mixed6_conv'][:, :7].flatten(1)
