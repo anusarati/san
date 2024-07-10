@@ -102,7 +102,7 @@ def generate_images(
     os.makedirs(outdir, exist_ok=True)
 
     # Generate images.
-    for seed_idx, seed in tqdm(enumerate(seeds)):
+    for seed_idx, seed in tqdm(enumerate(seeds), total=len(seeds)):
         #print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
 
         # Construct an inverse rotation/translation matrix and pass to the generator.  The
