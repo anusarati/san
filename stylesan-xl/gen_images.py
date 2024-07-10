@@ -20,6 +20,7 @@ import torch
 
 import legacy
 from torch_utils import gen_utils
+import tqdm
 
 #----------------------------------------------------------------------------
 
@@ -101,8 +102,8 @@ def generate_images(
     os.makedirs(outdir, exist_ok=True)
 
     # Generate images.
-    for seed_idx, seed in enumerate(seeds):
-        print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
+    for seed_idx, seed in tqdm(enumerate(seeds)):
+        #print('Generating image for seed %d (%d/%d) ...' % (seed, seed_idx, len(seeds)))
 
         # Construct an inverse rotation/translation matrix and pass to the generator.  The
         # generator expects this matrix as an inverse to avoid potentially failing numerical
@@ -119,9 +120,7 @@ def generate_images(
         if img.shape[-1] == 1:
             mode = 'L'
             img = img.squeeze(axis=-1)
-        print(img.shape)
         grid = gen_utils.create_image_grid(img)
-        print(grid.shape)
         PIL.Image.fromarray(grid, mode).save(f'{outdir}/seed{seed:04d}.png')
 
 
