@@ -20,7 +20,7 @@ import torch
 
 import legacy
 from torch_utils import gen_utils
-import tqdm
+from tqdm import tqdm
 
 #----------------------------------------------------------------------------
 
