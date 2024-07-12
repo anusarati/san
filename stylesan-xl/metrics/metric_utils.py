@@ -281,9 +281,8 @@ def compute_feature_stats_for_dataset(opts, detector_url, detector_kwargs, rel_l
         item_subset = item_subset[:shuffle_size]
 
     for images, _labels in tqdm(torch.utils.data.DataLoader(dataset=dataset, sampler=item_subset, batch_size=batch_size, **data_loader_kwargs)):
-        # nope
-        #if images.shape[1] == 1:
-        #    images = images.repeat([1, 3, 1, 1])
+        if images.shape[1] == 1:
+            images = images.repeat([1, 3, 1, 1])
 
         with torch.no_grad():
             if opts.feature_network is None:
