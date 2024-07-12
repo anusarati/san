@@ -343,12 +343,12 @@ def compute_feature_stats_for_generator(opts, detector_url, detector_kwargs, rel
             img = (img * 127.5 + 128).clamp(0, 255).to(torch.uint8)
             images.append(img)
         images = torch.cat(images)
-        #if images.shape[1] == 1:
-        #    images = images.repeat([1, 3, 1, 1])
+        if images.shape[1] == 1:
+            images = images.repeat([1, 3, 1, 1])
 
         with torch.no_grad():
             if opts.feature_network is None:
-                if images.dtype == torch.uint8:
+                if opts.backbone_path and images.dtype == torch.uint8:
                     images = images.to(torch.float32) / 255
                 features = detector(images.to(opts.device), **detector_kwargs)
                 if sfid:
