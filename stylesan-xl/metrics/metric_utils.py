@@ -61,11 +61,11 @@ def get_feature_detector(url, device=torch.device('cpu'), num_gpus=1, rank=0, ve
         if not is_leader and num_gpus > 1:
             torch.distributed.barrier() # leader goes first
         with dnnlib.util.open_url(url, verbose=(verbose and is_leader)) as f:
-            print(url)
-            model = torch.load(f, map_location=device)
             if custom:
+                model = torch.load(f, map_location=device)
                 _feature_detector_cache[key] = lambda *a : model(*a).pooler_output
             else:
+                model = dill.load(f).to(device)
                 _feature_detector_cache[key] = model
             # _feature_detector_cache[key] = dill.load(f).to(device)
             # _feature_detector_cache[key] = pickle.load(f).to(device)

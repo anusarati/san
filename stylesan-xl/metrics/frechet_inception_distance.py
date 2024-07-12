@@ -20,7 +20,6 @@ from . import metric_utils
 def compute_fid(opts, max_real, num_gen, sfid=False, rfid=False):
     # Direct TorchScript translation of http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
     detector_url = opts.backbone_path or 'https://api.ngc.nvidia.com/v2/models/nvidia/research/stylegan3/versions/1/files/metrics/inception-2015-12-05.pkl'
-    print(detector_url)
     detector_kwargs = {} if opts.backbone_path else dict(return_features=True) # Return raw features before the softmax layer.
     if rfid:
         detector_url = 'https://s3.eu-central-1.amazonaws.com/avg-projects/stylegan_xl/feature_networks/inception_rand_full.pkl'
